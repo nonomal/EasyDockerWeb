@@ -1,5 +1,37 @@
 <%- include('include/header.html') %>
-    <div class="container" data-page="logs">
-        <div id="terminal"></div>
-    </div>
+<!-- 使用 container-fluid 并添加自定义样式 -->
+<div class="container-fluid terminal-wrapper" data-page="logs">
+    <div id="terminal"></div>
+</div>
+
+<!-- 在 footer 之前添加样式 -->
+<style>
+    /* 移除默认的 body margin 和 padding */
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;  /* 防止出现滚动条 */
+    }
+
+    /* 设置终端包装器样式 */
+    .terminal-wrapper {
+        padding: 0;  /* 移除内边距 */
+        height: 100vh;  /* 使用视口高度 */
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* 设置终端容器样式 */
+    #terminal {
+        flex: 1;  /* 占用所有可用空间 */
+        min-height: 0;  /* 修复 flex 布局在某些浏览器中的问题 */
+    }
+
+    /* 如果使用了 xterm.js，确保其容器也是全屏的 */
+    .xterm-screen,
+    .xterm-viewport {
+        width: 100% !important;
+        height: 100% !important;
+    }
+</style>
 <%- include('include/footer.html') %>
