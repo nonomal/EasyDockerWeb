@@ -2,6 +2,8 @@
 <html>
 <head>
     <title>Terminal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.18.0/css/xterm.min.css">
     <script src="https://cdn.jsdelivr.net/npm/xterm@4.18.0/lib/xterm.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-attach@0.6.0/lib/xterm-addon-attach.min.js"></script>
@@ -10,41 +12,58 @@
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-unicode11@0.3.0/lib/xterm-addon-unicode11.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.5.1/lib/xterm-addon-web-links.min.js"></script>
     <style>
-        html::-webkit-scrollbar,
-        body::-webkit-scrollbar,
-        div::-webkit-scrollbar {
+        /* 移除所有滚动条 */
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        *::-webkit-scrollbar {
             display: none;
-            width: 0;
         }
 
-        html,
-        body {
+        html, body {
             margin: 0;
-            overflow: hidden;
             padding: 0;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            background-color: #2A2C34;
         }
 
-        div#terminal {
-            height: 100%;
+        #terminal {
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
             left: 0;
-            position: absolute;
             top: 0;
-            width: 100%;
         }
 
-        div#terminal div {
+        #terminal div {
+            height: 100%;
+        }
+
+        .xterm {
+            padding: 8px;
             height: 100%;
         }
 
         .xterm-viewport,
         .xterm-screen {
-            height: 100%;
+            height: 100% !important;
+            width: 100% !important;
             margin: 0;
             padding: 0;
         }
 
-        .terminal.xterm {
-            padding: 8px;
+        /* 确保终端在全屏模式下正确显示 */
+        .fullscreen {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999;
         }
     </style>
 </head>
@@ -55,77 +74,122 @@
 <script src="/static/js/socket.io.js"></script>
 <script>
     (function () {
-        var terminal = new Terminal({
+        const terminal = new Terminal({
             screenKeys: true,
             useStyle: true,
             cursorBlink: true,
-            cursorStyle: 'bar', // 光标样式
+            cursorStyle: 'bar',
             fullscreenWin: true,
             maximizeWin: true,
             screenReaderMode: true,
             cols: 128,
+            fontSize: 14,
+            fontFamily: 'Menlo, Monaco, "Courier New", monospace',
             theme: {
-                foreground: 'white', // 字体
-                background: '#2A2C34', // 背景色
-                cursor: 'help', // 设置光标
+                foreground: 'white',
+                background: '#2A2C34',
+                cursor: 'help',
                 lineHeight: 16,
+                fontSize: 14
             },
-        });
-        var id = window.location.pathname.split('/')[3];
-        var host = window.location.origin;
-        var socket = io.connect(host);
-
-        socket.emit('exec', id, $('#terminal').width(), $('#terminal').height());
-
-        terminal.open(document.getElementById("terminal"));
-        var attachAddon = new AttachAddon.AttachAddon(socket);
-        var fitAddon = new FitAddon.FitAddon();
-        terminal.loadAddon(fitAddon);
-        var webLinksAddon = new WebLinksAddon.WebLinksAddon();
-        terminal.loadAddon(webLinksAddon);
-        var unicode11Addon = new Unicode11Addon.Unicode11Addon();
-        terminal.loadAddon(unicode11Addon);
-        var serializeAddon = new SerializeAddon.SerializeAddon();
-        terminal.loadAddon(serializeAddon);
-        terminal.loadAddon(attachAddon);
-        terminal._initialized = true;
-        terminal.focus();
-
-        setTimeout(function () {
-            fitAddon.fit();
-            socket.emit('cmd', "export TERM=xterm\n");
-            socket.emit('cmd', "PS1=\"\\[\\033[01;31m\\]\\u\\[\\033[01;33m\\]@\\[\\033[01;36m\\]\\h \\[\\033[01;33m\\]\\w \\[\\033[01;35m\\]\\$ \\[\\033[00m\\]\"\n");
-            socket.emit('cmd', "alias ls='ls --color'\n");
-            socket.emit('cmd', "alias ll='ls -alF'\n");
-            socket.emit('cmd', "clear\n");
+            allowTransparency: true,
+            windowOptions: {fullscreen: true}
         });
 
-        terminal.onResize(function (event) {
-            var rows = event.rows;
-            var cols = event.cols;
-            console.log('resizing to', {cols: cols, rows: rows + 1});
-            socket.emit('resize', {cols: cols, rows: rows + 1});
-        });
+        const id = window.location.pathname.split('/')[3];
+        const host = window.location.origin;
+        const socket = io.connect(host);
 
-        terminal.onTitleChange(function (event) {
-            console.log(event);
-        });
+        // 初始化连接
+        function initConnection() {
+            socket.emit('exec', id, $('#terminal').width(), $('#terminal').height());
+        }
 
-        window.onresize = function () {
-            fitAddon.fit();
-        };
+        // 初始化终端
+        function initTerminal() {
+            terminal.open(document.getElementById('terminal'));
 
-        terminal.onData((data) => {
-            socket.emit('cmd', data);
-        });
+            // 加载插件
+            const attachAddon = new AttachAddon.AttachAddon(socket);
+            const fitAddon = new FitAddon.FitAddon();
+            const webLinksAddon = new WebLinksAddon.WebLinksAddon();
+            const unicode11Addon = new Unicode11Addon.Unicode11Addon();
+            const serializeAddon = new SerializeAddon.SerializeAddon();
+
+            terminal.loadAddon(fitAddon);
+            terminal.loadAddon(webLinksAddon);
+            terminal.loadAddon(unicode11Addon);
+            terminal.loadAddon(serializeAddon);
+            terminal.loadAddon(attachAddon);
+
+            terminal._initialized = true;
+            terminal.focus();
+
+            // 初始化终端设置
+            setTimeout(function () {
+                fitAddon.fit();
+                socket.emit('cmd', 'export TERM=xterm\n');
+                socket.emit('cmd', 'PS1="\\[\\033[01;31m\\]\\u\\[\\033[01;33m\\]@\\[\\033[01;36m\\]\\h \\[\\033[01;33m\\]\\w \\[\\033[01;35m\\]\\$ \\[\\033[00m\\]"\n');
+                socket.emit('cmd', 'alias ls=\'ls --color=auto 2>/dev/null\'\n');
+                socket.emit('cmd', 'alias ll=\'ls -alF 2>/dev/null\'\n');
+                // 使用 ANSI 转义序列清屏
+                socket.emit('cmd', '\x1b[2J\x1b[H\n');
+            }, 100);
+
+            // 处理终端大小调整
+            terminal.onResize((event) => {
+                const {rows, cols} = event;
+                socket.emit('resize', {cols: cols, rows: rows + 1});
+            });
+
+            // 优化窗口调整处理
+            let resizeTimeout;
+            window.onresize = function () {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    fitAddon.fit();
+                }, 100);
+            };
+
+            // 数据传输
+            terminal.onData((data) => {
+                socket.emit('cmd', data);
+            });
+        }
+
+        // 事件监听
         socket.on('show', (data) => {
             terminal.write(data);
         });
 
         socket.on('end', (status) => {
-            // $('#terminal').empty();
             socket.disconnect();
-            terminal.write('\r\n\nconnection has been terminated from the server-side (hit refresh to restart)\n');
+            terminal.write('\r\n\nConnection terminated from server (refresh to restart)\n');
+        });
+
+        // 错误处理
+        socket.on('error', (error) => {
+            console.error('Socket error:', error);
+            terminal.write('\r\n\nConnection error occurred. Please refresh the page.\n');
+        });
+
+        // 初始化
+        initConnection();
+        initTerminal();
+
+        // 支持全屏切换
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F11') {
+                e.preventDefault();
+                const terminalElement = document.getElementById('terminal');
+                if (!document.fullscreenElement) {
+                    terminalElement.requestFullscreen();
+                    terminalElement.classList.add('fullscreen');
+                } else {
+                    document.exitFullscreen();
+                    terminalElement.classList.remove('fullscreen');
+                }
+            }
         });
     })();
 </script>

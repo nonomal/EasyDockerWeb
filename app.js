@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -12,7 +14,7 @@ app.io = io;
 
 const index = require('./routes/index');
 const api = require('./routes/api');
-const overview = require('./routes/overview')(io);
+const overview = require('./routes/overview');
 const containers = require('./routes/containers')(io);
 const images = require('./routes/images')(io);
 
@@ -44,7 +46,7 @@ app.all('*', (req, res, next) => {
         'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
     res.header('Access-Control-Allow-Methods',
         'PUT, POST, GET, DELETE, OPTIONS');
-    if (req.method == 'OPTIONS') {
+    if (req.method === 'OPTIONS') {
         res.send(200); /* speedup options */
     } else {
         next();
