@@ -6,12 +6,10 @@ const docker = new Docker();
 router.get('/', async (req, res, next) => {
     try {
         const info = await docker.info();
-        return res.render('overview', {
-            info: info
-        });
+        return res.render('overview', {info});
     } catch (error) {
         return res.render('error', {
-            message: "Docker is running ?",
+            message: 'Docker is running ?',
             error
         });
     }
