@@ -1,86 +1,203 @@
-<% include include/header.html %>
-    <div class="container" data-page="overview">
-        <div class="row">
-            <div class="col-md-3">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">OS</h3>
-                    </div>
-                    <div class="panel-body">
-                        <%= info.OperatingSystem %>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Docker version</h3>
-                    </div>
-                    <div class="panel-body">
-                        <%= info.ServerVersion %>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">CPU</h3>
-                    </div>
-                    <div class="panel-body">
-                        <%= info.NCPU %>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Name</h3>
-                    </div>
-                    <div class="panel-body">
-                        <%= info.Name %>
-                    </div>
-                </div>
+<%- include('include/header.html') %>
+<div class="container" data-page="overview">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="page-header">
+                <h2><i class="glyphicon glyphicon-dashboard"></i> Docker Dashboard</h2>
             </div>
         </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <div class="panel panel-success">
-                    <a href="/containers" class="panel-heading panel-title btn btn-success btn-sm" style="width: 100%;">Containers</a>
-                    <div class="panel-body">
-                        <div class="col-md-4">
-                            <p class="text-success">Running :
-                                <%= info.ContainersRunning %>
-                            </p>
-                        </div>
-                        <div class="col-md-4">
-                            <p class="text-warning">Paused :
-                                <%= info.ContainersPaused %>
-                            </p>
-                        </div>
-                        <div class="col-md-4">
-                            <p class="text-danger">Stopped :
-                                <%= info.ContainersStopped %>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="panel panel-success">
-                    <a href="/images" class="panel-heading panel-title btn btn-success btn-sm" style="width: 100%;">Images</a>
-                    <div class="panel-body">
-                        <p class="text-center">
-                            <%= info.Images %>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-
-        </div>
-
     </div>
-    <% include include/footer.html %>
+
+    <!-- System Information Cards -->
+    <div class="row equal-height-row">
+        <div class="col-md-3 col-sm-6">
+            <div class="panel panel-info full-height">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Operating System</h3>
+                </div>
+                <div class="panel-body text-center">
+                    <i class="glyphicon glyphicon-hdd icon-large"></i>
+                    <h4><%= info.OperatingSystem %></h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="panel panel-primary full-height">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Docker Version</h3>
+                </div>
+                <div class="panel-body text-center">
+                    <i class="glyphicon glyphicon-cloud icon-large"></i>
+                    <h4><%= info.ServerVersion %></h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="panel panel-success full-height">
+                <div class="panel-heading">
+                    <h3 class="panel-title">CPU Cores</h3>
+                </div>
+                <div class="panel-body text-center">
+                    <i class="glyphicon glyphicon-tasks icon-large"></i>
+                    <h4><%= info.NCPU %></h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="panel panel-warning full-height">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Host Name</h3>
+                </div>
+                <div class="panel-body text-center">
+                    <i class="glyphicon glyphicon-tag icon-large"></i>
+                    <h4><%= info.Name %></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container and Image Stats -->
+    <div class="row equal-height-row">
+        <div class="col-md-6">
+            <div class="panel panel-primary full-height">
+                <div class="panel-heading clearfix">
+                    <h3 class="panel-title pull-left">
+                        <i class="glyphicon glyphicon-th"></i> Containers
+                    </h3>
+                    <a href="/containers" class="btn btn-xs btn-default pull-right">View All</a>
+                </div>
+                <div class="panel-body">
+                    <div class="row text-center">
+                        <div class="col-xs-4">
+                            <div class="circle-stat bg-success">
+                                <%= info.ContainersRunning %>
+                            </div>
+                            <h4>Running</h4>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="circle-stat bg-warning">
+                                <%= info.ContainersPaused %>
+                            </div>
+                            <h4>Paused</h4>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="circle-stat bg-danger">
+                                <%= info.ContainersStopped %>
+                            </div>
+                            <h4>Stopped</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="panel panel-primary full-height">
+                <div class="panel-heading clearfix">
+                    <h3 class="panel-title pull-left">
+                        <i class="glyphicon glyphicon-picture"></i> Images
+                    </h3>
+                    <a href="/images" class="btn btn-xs btn-default pull-right">View All</a>
+                </div>
+                <div class="panel-body text-center">
+                    <div class="circle-stat bg-info">
+                        <%= info.Images %>
+                    </div>
+                    <h4>Total Images</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add system information if available -->
+    <% if (info.DriverStatus) { %>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><i class="glyphicon glyphicon-info-sign"></i> Storage Driver Information</h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <tbody>
+                        <% info.DriverStatus.forEach(function(item) { %>
+                        <tr>
+                            <td><strong><%= item[0] %></strong></td>
+                            <td><%= item[1] %></td>
+                        </tr>
+                        <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% } %>
+</div>
+
+<!-- Add custom styles for this page -->
+<style>
+    .equal-height-row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .equal-height-row > [class*='col-'] {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .full-height {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .panel-body {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .panel-body .row {
+        width: 100%;
+    }
+
+    .icon-large {
+        font-size: 3em;
+        margin: 10px 0;
+    }
+
+    .circle-stat {
+        display: inline-block;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 60px;
+        font-size: 24px;
+        font-weight: bold;
+        color: white;
+        margin: 10px 0;
+    }
+
+    .bg-success { background-color: #5cb85c; }
+    .bg-warning { background-color: #f0ad4e; }
+    .bg-danger { background-color: #d9534f; }
+    .bg-info { background-color: #5bc0de; }
+
+    .panel-heading .btn {
+        margin-top: -2px;
+    }
+
+    .page-header {
+        margin-bottom: 30px;
+        border-bottom: 2px solid #eee;
+    }
+</style>
+<%- include('include/footer.html') %>

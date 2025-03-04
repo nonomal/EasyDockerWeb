@@ -1,129 +1,116 @@
-<% include include/header.html %>
-<div class="col-md-12">
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New container
-    </button>
-    <hr>
-</div>
-<div class="container-fluid" data-page="containers">
-    <div class="col-md-12">
-        <table class="table table-bordered table-hover">
-            <thead>
-            <tr>
-                <th>Names</th>
-                <th>Image</th>
-                <th>Command</th>
-                <th>Port</th>
-                <th>State</th>
-                <th>CPU</th>
-                <th>RAM</th>
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <% if(containers){ %>
-            <% containers.forEach(function(container,index){ %>
-            <tr>
-                <td>
-                    <%= formatName(container.Names) %>
-                </td>
-                <td>
-                    <%= container.Image %>
-                </td>
-                <td>
-                    <%= container.Command %>
-                </td>
-                <td>
-                    <% if(container.Ports[0]){ %>
-                    [TCP]
-                    <%= container.Ports[0].PrivatePort %>
-                    <% if(container.Ports[0].PublicPort){ %>
-                    -> <%= container.Ports[0].PublicPort %>
-                    <% } %>
-                    <% } %>
-                </td>
-                <td>
-                    <% if(container.State=='running'){ %>
-                    <span class="label label-success btn-xs"><%= container.State %></span>
-                    <% } %>
-                    <% if(container.State=='exited'){ %>
-                    <span class="label label-danger btn-xs"><%= container.State %></span>
-                    <% } %>
-                    <% if(container.State=='created'){ %>
-                    <span class="label label-warning btn-xs"><%= container.State %></span>
-                    <% } %>
-                </td>
-                <td class="container-cpu" container-id="<%= container.Id %>">No data</td>
-                <td class="container-ram" container-id="<%= container.Id %>">No data</td>
+<%- include('include/header.html') %>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New container
+            </button>
+            <hr>
+        </div>
+    </div>
 
-                <td>
-                    <% if(container.State=='running'){ %>
-
-                    <% if(!(container.Image.includes("qfdk")||container.Image.includes("easy-docker-web"))){ %>
-                    <a class="btn btn-warning btn-xs"
-                       data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
-                       href="/containers/stop/<%= container.Id %>">
-                        <span class="glyphicon glyphicon-stop"></span> Stop
-                    </a>
+    <div class="row" data-page="containers">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                    <tr>
+                        <th style="width: 15%">Names</th>
+                        <th style="width: 15%">Image</th>
+                        <th style="width: 10%">Command</th>
+                        <th style="width: 10%">Port</th>
+                        <th style="width: 8%">State</th>
+                        <th style="width: 8%">CPU</th>
+                        <th style="width: 8%">RAM</th>
+                        <th style="width: 26%">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% if(containers && containers.length > 0){ %>
+                    <% containers.forEach(function(container,index){ %>
+                    <tr>
+                        <td class="text-break"><%= formatName(container.Names) %></td>
+                        <td class="text-break"><%= container.Image %></td>
+                        <td class="text-break"><%= container.Command %></td>
+                        <td>
+                            <% if(container.Ports && container.Ports[0]){ %>
+                            [TCP] <%= container.Ports[0].PrivatePort %>
+                            <% if(container.Ports[0].PublicPort){ %>
+                            → <%= container.Ports[0].PublicPort %>
+                            <% } %>
+                            <% } %>
+                        </td>
+                        <td>
+                            <% if(container.State=='running'){ %>
+                            <span class="label label-success"><%= container.State %></span>
+                            <% } else if(container.State=='exited'){ %>
+                            <span class="label label-danger"><%= container.State %></span>
+                            <% } else { %>
+                            <span class="label label-warning"><%= container.State %></span>
+                            <% } %>
+                        </td>
+                        <td class="container-cpu" container-id="<%= container.Id %>">-</td>
+                        <td class="container-ram" container-id="<%= container.Id %>">-</td>
+                        <td>
+                            <div class="btn-group">
+                                <% if(container.State=='running'){ %>
+                                <% if(!(container.Image.includes("qfdk")||container.Image.includes("easy-docker-web"))){ %>
+                                <a class="btn btn-warning btn-xs" href="/containers/stop/<%= container.Id %>">
+                                    <span class="glyphicon glyphicon-stop"></span> Stop
+                                </a>
+                                <% } %>
+                                <a class="btn btn-primary btn-xs" href="/containers/console/<%= container.Id %>">
+                                    <span class="glyphicon glyphicon-console"></span> Console
+                                </a>
+                                <% } else if(container.State=='exited'){ %>
+                                <a class="btn btn-success btn-xs" href="/containers/start/<%= container.Id %>">
+                                    <span class="glyphicon glyphicon-play"></span> Start
+                                </a>
+                                <a class="btn btn-danger btn-xs" href="/containers/remove/<%= container.Id %>">
+                                    <span class="glyphicon glyphicon-trash"></span> Remove
+                                </a>
+                                <% } else if(container.State=='created'){ %>
+                                <a class="btn btn-danger btn-xs" href="/containers/remove/<%= container.Id %>">
+                                    <span class="glyphicon glyphicon-trash"></span> Remove
+                                </a>
+                                <% } %>
+                                <a class="btn btn-info btn-xs" href="/containers/logs/<%= container.Id %>">
+                                    <span class="glyphicon glyphicon-comment"></span> Logs
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <% }) %>
+                    <% } else { %>
+                    <tr>
+                        <td colspan="8" class="text-center">No containers found</td>
+                    </tr>
                     <% } %>
-                    <a class="btn btn-primary btn-xs"
-                       data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
-                       href="/containers/console/<%= container.Id %>">
-                        <span class="glyphicon glyphicon-console"></span> Console
-                    </a>
-                    <% } %>
-                    <% if(container.State=='exited'){ %>
-                    <a class="btn btn-success btn-xs"
-                       data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
-                       href="/containers/start/<%= container.Id %>">
-                        <span class="glyphicon glyphicon-play"></span> Start
-                    </a>
-                    <a class="btn btn-danger btn-xs"
-                       data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
-                       href="/containers/remove/<%= container.Id %>">
-                        <span class="glyphicon glyphicon-trash"></span> Remove
-                    </a>
-                    <% } %>
-                    <% if(container.State=='created'){ %>
-                    <a class="btn btn-danger btn-xs"
-                       data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
-                       href="/containers/remove/<%= container.Id %>">
-                        <span class="glyphicon glyphicon-trash"></span> Remove
-                    </a>
-                    <% } %>
-                    <a class="btn btn-info btn-xs"
-                       data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
-                       href="/containers/logs/<%= container.Id %>">
-                        <span class="glyphicon glyphicon-comment"></span> Logs
-                    </a>
-                </td>
-            </tr>
-            <% }) %>
-
-            <% } %>
-            </tbody>
-        </table>
-
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
-<!-- Modal -->
+
+<!-- New Container Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
                 </button>
                 <h4 class="modal-title" id="myModalLabel">New container</h4>
             </div>
             <form action="/containers/create" method="POST" role="form">
                 <div class="modal-body">
-
                     <div class="form-group">
                         <label for="containerImage">Image: </label>
-                        <select id="containerImage" name="containerImage" class="selectpicker" data-live-search="true"
-                                title="Please select an image ...">
-                            <option class="bs-title-option" value="">Please select an image ...</option>
-                            <% if(images){ %>
+                        <select id="containerImage" name="containerImage" class="selectpicker form-control"
+                                data-live-search="true" title="Please select an image ..." required>
+                            <option value="">Please select an image ...</option>
+                            <% if(images && images.length > 0){ %>
                             <% images.forEach(function(image,index){ %>
                             <option><%= image.RepoTags %></option>
                             <% }) %>
@@ -132,60 +119,59 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
-                            <input type="text" placeholder="Container name" class="form-control" name="containerName"
-                                   id="containerName">
+                        <div class="col-md-6 form-group">
+                            <label for="containerName">Container name:</label>
+                            <input type="text" placeholder="Container name" class="form-control"
+                                   name="containerName" id="containerName">
                         </div>
-
-                        <div class="col-md-6">
-                            <label>
-                                <input type="checkbox"
-                                       name="isAlways" id="isAlways"> Always restart
+                        <div class="col-md-6 form-group">
+                            <label class="checkbox" style="margin-top: 25px;">
+                                <input type="checkbox" name="isAlways" id="isAlways">
+                                Always restart
                             </label>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="containerVolumeSource">Volume: </label>
+                        <label>Volume mapping:</label>
                         <div class="row">
                             <div class="col-md-6">
-                                <input type="text" placeholder="Src" class="form-control" name="containerVolumeSource"
-                                       id="containerVolumeSource">
+                                <input type="text" placeholder="Host path" class="form-control"
+                                       name="containerVolumeSource" id="containerVolumeSource">
                             </div>
                             <div class="col-md-6">
-                                <input type="text" placeholder="Dis" class="form-control"
+                                <input type="text" placeholder="Container path" class="form-control"
                                        name="containerVolumeDistination" id="containerVolumeDistination">
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="containerPortSource">Expose port (TCP): </label>
+                        <label>Port mapping (TCP):</label>
                         <div class="row">
                             <div class="col-md-6">
-                                <input type="text" placeholder="Src" class="form-control" name="containerPortSource"
-                                       id="containerPortSource">
+                                <input type="text" placeholder="Container port" class="form-control"
+                                       name="containerPortSource" id="containerPortSource">
                             </div>
                             <div class="col-md-6">
-                                <input type="text" placeholder="Dis" class="form-control"
+                                <input type="text" placeholder="Host port" class="form-control"
                                        name="containerPortDistination" id="containerPortDistination">
                             </div>
                         </div>
                     </div>
+
                     <div class="form-group">
-                        <label for="containerCmd">Cmd: </label>
-                        <input type="text" class="form-control" name="containerCmd" id="containerCmd">
+                        <label for="containerCmd">Command:</label>
+                        <input type="text" class="form-control" name="containerCmd" id="containerCmd"
+                               placeholder="Optional startup command">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button id="create" type="submit"
-                            data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
-                            class="btn btn-primary">Confirm
-                    </button>
+                    <button id="create" type="submit" class="btn btn-primary">Create</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-<% include include/footer.html %>
+<%- include('include/footer.html') %>

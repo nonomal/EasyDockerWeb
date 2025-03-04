@@ -15,7 +15,7 @@ const returnContainersRouter = (io) => {
                 res.render('containers',
                     {
                         containers: containers,
-                        images: listImages,
+                        images: listImages
                     });
             });
         });
@@ -47,79 +47,100 @@ const returnContainersRouter = (io) => {
     });
 
     router.post('/create', (req, res, next) => {
+        console.log('Container create request:', {
+            image: req.body.containerImage,
+            name: req.body.containerName,
+            cmd: req.body.containerCmd,
+            ports: `${req.body.containerPortSource}:${req.body.containerPortDistination}`,
+            volumes: `${req.body.containerVolumeSource}:${req.body.containerVolumeDistination}`,
+            isAlways: req.body.isAlways
+        });
+
+        if (!req.body.containerImage || typeof req.body.containerImage !== 'string') {
+            return res.status(400).send('Invalid image name');
+        }
+
+        // Handle comma-separated image names
+        const imageName = req.body.containerImage.split(',')[0].trim();
+
         let options = {
-            Image: req.body.containerImage,
+            Image: imageName,
             AttachStdin: false,
             AttachStdout: true,
             AttachStderr: true,
             Tty: false,
             HostConfig: {
                 PortBindings: {},
-            },
+                Binds: [],
+                RestartPolicy: {
+                    Name: req.body.isAlways === 'on' ? 'always' : 'no'
+                }
+            }
         };
 
-        // name
         if (req.body.containerName !== '') {
-            options = {
-                ...options,
-                name: req.body.containerName,
-            };
+            options.name = req.body.containerName;
         }
 
-        // volume
         if (req.body.containerVolumeSource !== '' &&
             req.body.containerVolumeDistination !== '') {
             const src = req.body.containerVolumeSource;
             const dis = req.body.containerVolumeDistination;
-            options['Volumes'] = {dis: {}};
-            options.HostConfig = {
-                'Binds': [src + ':' + dis],
-                'RestartPolicy': {
-                    'Name': req.body.isAlways === 'on' ? 'always' : '',
-                    'MaximumRetryCount': 5,
-                },
-            };
+
+            if (!options.Volumes) {
+                options.Volumes = {};
+            }
+            options.Volumes[dis] = {};
+            options.HostConfig.Binds.push(`${src}:${dis}`);
         }
 
-        // port
         if (req.body.containerPortSource !== '' &&
             req.body.containerPortDistination !== '') {
-            const src = req.body.containerPortSource + '/tcp';
+            const src = `${req.body.containerPortSource}/tcp`;
             const dis = req.body.containerPortDistination;
-            options['ExposedPorts'] = {dis: {}};
-            options.HostConfig.PortBindings = {
-                src: [{HostPort: dis}]
-            };
+
+            if (!options.ExposedPorts) {
+                options.ExposedPorts = {};
+            }
+            options.ExposedPorts[src] = {};
+            options.HostConfig.PortBindings[src] = [{HostPort: dis}];
         }
 
-        if (req.body.containerCmd != '') {
+        if (req.body.containerCmd !== '') {
+            // Use /bin/sh instead of /bin/bash
             options.Cmd = ['/bin/sh', '-c', req.body.containerCmd];
-            // console.log(options)
-            docker.createContainer(options, (err, container) => {
-                if (err) throw err;
-                container.start((err, data) => {
+
+            docker.createContainer(options)
+                .then(container => container.start())
+                .then(container => {
                     res.redirect('/containers/logs/' + container.id);
+                })
+                .catch(err => {
+                    console.error('Docker错误:', err);
+                    next(err);
                 });
-            });
         } else {
             const runOpt = {
-                Image: req.body.containerImage,
+                ...options,
                 AttachStdin: true,
                 AttachStdout: true,
                 AttachStderr: true,
                 Tty: true,
-                //Cmd: ['/bin/sh'],
                 OpenStdin: false,
-                StdinOnce: false,
-                ...options,
+                StdinOnce: false
+                // Don't set Cmd to avoid shell issues
             };
-            docker.createContainer(runOpt).then(function (container) {
-                return container.start();
-            }).then((container) => {
-                res.redirect('/containers');
-            });
-        }
 
+            docker.createContainer(runOpt)
+                .then(container => container.start())
+                .then(container => {
+                    res.redirect('/containers');
+                })
+                .catch(err => {
+                    console.error('Docker错误:', err);
+                    next(err);
+                });
+        }
     });
 
     router.get('/console/:id', (req, res, next) => {
@@ -138,7 +159,7 @@ const returnContainersRouter = (io) => {
                 'AttachStderr': true,
                 'AttachStdin': true,
                 'Tty': true,
-                Cmd: ['/bin/bash'],
+                Cmd: ['/bin/bash']
             };
             socket.on('resize', (data) => {
                 container.resize({h: data.rows, w: data.cols}, () => {
@@ -152,7 +173,7 @@ const returnContainersRouter = (io) => {
                     stdout: true,
                     stderr: true,
                     // fix vim
-                    hijack: true,
+                    hijack: true
                 };
 
                 container.wait((err, data) => {
@@ -188,7 +209,7 @@ const returnContainersRouter = (io) => {
                 follow: true,
                 stdout: true,
                 stderr: true,
-                timestamps: false,
+                timestamps: false
             };
 
             const handler = (err, stream) => {
