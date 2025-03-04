@@ -1,44 +1,44 @@
 <%- include('include/header.html') %>
 <div class="container" data-page="overview">
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-3 col-sm-6">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <h3 class="panel-title">OS</h3>
+                    <h3 class="panel-title">Operating System</h3>
                 </div>
-                <div class="panel-body">
-                    <%= info.OperatingSystem %>
+                <div class="panel-body text-center">
+                    <strong><%= info.OperatingSystem %></strong>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 col-sm-6">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Docker version</h3>
+                    <h3 class="panel-title">Docker Version</h3>
                 </div>
-                <div class="panel-body">
-                    <%= info.ServerVersion %>
+                <div class="panel-body text-center">
+                    <strong><%= info.ServerVersion %></strong>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-3 col-sm-6">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <h3 class="panel-title">CPU</h3>
+                    <h3 class="panel-title">CPU Cores</h3>
                 </div>
-                <div class="panel-body">
-                    <%= info.NCPU %>
+                <div class="panel-body text-center">
+                    <strong><%= info.NCPU %></strong>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 col-sm-6">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Name</h3>
+                    <h3 class="panel-title">Host Name</h3>
                 </div>
-                <div class="panel-body">
-                    <%= info.Name %>
+                <div class="panel-body text-center">
+                    <strong><%= info.Name %></strong>
                 </div>
             </div>
         </div>
@@ -47,22 +47,23 @@
     <div class="row">
         <div class="col-md-6">
             <div class="panel panel-success">
-                <a href="/containers" class="panel-heading panel-title btn btn-success btn-sm" style="width: 100%;">Containers</a>
+                <a href="/containers" class="panel-heading btn btn-success btn-block">
+                    <h3 class="panel-title">Containers</h3>
+                </a>
                 <div class="panel-body">
-                    <div class="col-md-4">
-                        <p class="text-success">Running :
-                            <%= info.ContainersRunning %>
-                        </p>
-                    </div>
-                    <div class="col-md-4">
-                        <p class="text-warning">Paused :
-                            <%= info.ContainersPaused %>
-                        </p>
-                    </div>
-                    <div class="col-md-4">
-                        <p class="text-danger">Stopped :
-                            <%= info.ContainersStopped %>
-                        </p>
+                    <div class="row text-center">
+                        <div class="col-xs-4">
+                            <span class="label label-success">Running</span>
+                            <h4><%= info.ContainersRunning %></h4>
+                        </div>
+                        <div class="col-xs-4">
+                            <span class="label label-warning">Paused</span>
+                            <h4><%= info.ContainersPaused %></h4>
+                        </div>
+                        <div class="col-xs-4">
+                            <span class="label label-danger">Stopped</span>
+                            <h4><%= info.ContainersStopped %></h4>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -70,16 +71,19 @@
 
         <div class="col-md-6">
             <div class="panel panel-success">
-                <a href="/images" class="panel-heading panel-title btn btn-success btn-sm"
-                   style="width: 100%;">Images</a>
+                <a href="/images" class="panel-heading btn btn-success btn-block">
+                    <h3 class="panel-title">Images</h3>
+                </a>
                 <div class="panel-body">
-                    <p class="text-center">
-                        <%= info.Images %>
-                    </p>
+                    <div class="row text-center">
+                        <div class="col-xs-12">
+                            <h3><%= info.Images %></h3>
+                            <span class="label label-info">Total Images</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 <%- include('include/footer.html') %>

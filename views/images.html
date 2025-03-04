@@ -1,49 +1,56 @@
 <%- include('include/header.html') %>
-<div class="container">
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modelImage">
-        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Pull image
-    </button>
-    <hr>
-</div>
-<div class="container" data-page="images">
-    <table class="table table-bordered table-hover">
-        <thead>
-            <tr>
-                <th>REPOSITORY</th>
-                <th>TAG</th>
-                <th>Size</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% if(images){ %>
-            <% images.forEach(function(image,index){ %>
-            <tr>
-                <td>
-                    <%= imageName(image.RepoTags) %>
-                </td>
-                <td>
-                    <%= imageTag(image.RepoTags) %>
-                </td>
-                <td>
-                    <%= imageSize(image.Size) %> MB
-                </td>
-                <td>
-                    <a class="btn btn-danger btn-xs" data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
-                        href="/images/remove/<%= image.Id %>">
-                        <span class="glyphicon glyphicon-trash"></span> Remove
-                    </a>
-                </td>
-            </tr>
-            <% }) %>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modelImage">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Pull image
+            </button>
+            <hr>
+        </div>
+    </div>
 
-            <% } %>
-        </tbody>
-    </table>
+    <div class="row" data-page="images">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                    <tr>
+                        <th style="width: 40%">Repository</th>
+                        <th style="width: 20%">Tag</th>
+                        <th style="width: 20%">Size</th>
+                        <th style="width: 20%">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% if(images && images.length > 0){ %>
+                    <% images.forEach(function(image,index){ %>
+                    <tr>
+                        <td><%= imageName(image.RepoTags) %></td>
+                        <td><%= imageTag(image.RepoTags) %></td>
+                        <td><%= imageSize(image.Size) %> MB</td>
+                        <td>
+                            <a class="btn btn-danger btn-xs" href="/images/remove/<%= image.Id %>">
+                                <span class="glyphicon glyphicon-trash"></span> Remove
+                            </a>
+                        </td>
+                    </tr>
+                    <% }) %>
+                    <% } else { %>
+                    <tr>
+                        <td colspan="4" class="text-center">No images found</td>
+                    </tr>
+                    <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Pull Image Modal -->
 <div class="modal fade" id="modelImage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content modal-lg">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -52,29 +59,26 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <div class="form-inline">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="imageName">Image name: </label>
-                                <input type="text" class="form-control typeahead" data-provide="typeahead" autocomplete="off"
-                                    name="imageName" id="imageName">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="imageVersionName">Version: </label>
-                                <input type="text" class="form-control typeahead" placeholder="latest" autocomplete="off"
-                                    name="imageVersionName" id="imageVersionName">
-                            </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="imageName">Image name:</label>
+                            <input type="text" class="form-control typeahead" data-provide="typeahead"
+                                   autocomplete="off" name="imageName" id="imageName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="imageVersionName">Version:</label>
+                            <input type="text" class="form-control typeahead" placeholder="latest"
+                                   autocomplete="off" name="imageVersionName" id="imageVersionName">
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <div id="terminal"></div>
+                    <div id="terminal" style="height: 300px; overflow: auto;"></div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button id="pullImage" type="submit" data-loading-text="<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Waiting..."
-                    class="btn btn-primary">Confirm</button>
+                <button id="pullImage" type="submit" class="btn btn-primary">Pull Image</button>
             </div>
         </div>
     </div>

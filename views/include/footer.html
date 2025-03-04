@@ -1,20 +1,36 @@
-<div class="container">
-    <hr>
-    <footer id="footer">
-        <div class="container">
-            <div class="copyright">
-                &copy; Copyright <strong>qfdk</strong>. All Rights Reserved
-            </div>
+</div> <!-- End of content-wrapper -->
+
+<footer>
+    <div class="container">
+        <div class="text-center">
+            &copy; Copyright <strong>qfdk</strong>. All Rights Reserved
         </div>
-    </footer>
-</div>
-<!-- jQuery -->
+    </div>
+</footer>
+
+<!-- JavaScript Resources -->
 <script src="/static/js/jquery.min.js"></script>
-<!-- Bootstrap JavaScript -->
 <script src="/static/js/bootstrap.min.js"></script>
 <script src="/static/js/bootstrap-select.min.js"></script>
 <script src="/static/js/bootstrap3-typeahead.min.js"></script>
 <script src="/static/js/socket.io.js"></script>
 <script src="/static/js/app.js"></script>
+<script>
+    $(document).ready(function() {
+        // Highlight active navigation
+        var page = $('[data-page]').attr('data-page');
+        if (page) {
+            $('#' + page + 'Nav').addClass('active');
+        }
+
+        // Add loading state to buttons
+        $('.btn').click(function() {
+            var $btn = $(this);
+            if ($btn.attr('data-loading-text') && !$btn.hasClass('disabled')) {
+                $btn.button('loading');
+            }
+        });
+    });
+</script>
 </body>
 </html>
